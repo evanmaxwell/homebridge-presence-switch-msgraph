@@ -248,6 +248,11 @@
         "title": "Add 'Offline' Switch",
         "type": "boolean",
         "default": false
+      },
+      "enableOutOfOfficeSwitch": {
+        "title": "Add 'Out of Office' Switch",
+        "type": "boolean",
+        "default": false
       }
     }
   },
@@ -289,7 +294,8 @@
                 "enableAwaySwitch",
                 "enableBusySwitch",
                 "enableDndSwitch",
-                "enableOfflineSwitch"
+                "enableOfflineSwitch",
+                "enableOutOfOfficeSwitch"
             ]
         },
         {

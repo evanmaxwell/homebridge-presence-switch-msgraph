@@ -35,6 +35,7 @@ export class PresenceAccessory implements HomebridgeAccessory {
   private switchBusy: HAPNodeJS.Service = null;
   private switchAvailable: HAPNodeJS.Service = null;
   private switchDnD: HAPNodeJS.Service = null;
+  private switchOutOfOffice: HAPNodeJS.Service = null;
 
   private activitySwitches: { [name: string]: HAPNodeJS.Service } = {};
 
@@ -83,6 +84,7 @@ export class PresenceAccessory implements HomebridgeAccessory {
     enableBusySwitch: false,
     enableDndSwitch: false,
     enableOfflineSwitch: false,
+    enableOutOfOfficeSwitch: false,
   };
 
   /**
@@ -192,6 +194,16 @@ export class PresenceAccessory implements HomebridgeAccessory {
         .updateValue(false);
     }
 
+    if (this.config.enableOutOfOfficeSwitch) {
+      this.switchOutOfOffice = new PresenceAccessory.service.Switch(
+        `Switch Out of Office - ${this.config.name}`,
+        "OutOfOffice"
+      );
+      this.switchOutOfOffice
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
+
     // Register custom switches if needed
     const otherStates = Object.keys(this.config.statusColors).filter(
       (status) =>
@@ -254,6 +266,9 @@ export class PresenceAccessory implements HomebridgeAccessory {
     }
     if (this.switchAvailable) {
       services.push(this.switchAvailable);
+    }
+    if (this.switchOutOfOffice) {
+      services.push(this.switchOutOfOffice);
     }
 
     return [...services, ...otherSwitches.map((name) => this.activitySwitches[name])];
@@ -434,8 +449,43 @@ export class PresenceAccessory implements HomebridgeAccessory {
       if (this.switchDnD) {
         this.switchDnD.getCharacteristic(characteristic).updateValue(false);
       }
+      if (this.switchOutOfOffice) {
+        this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(false);
+      }
 
       return;
+    }
+
+    if (activity === Activity.OutOfOffice && this.switchOutOfOffice) {
+      this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(true);
+
+      if (this.switchAvailable) {
+        this.switchAvailable.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchAway) {
+        this.switchAway.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchBusy) {
+        this.switchBusy.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchOff) {
+        this.switchOff.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchDnD) {
+        this.switchDnD.getCharacteristic(characteristic).updateValue(false);
+      }
+
+      for (const switchName of Object.keys(this.activitySwitches)) {
+        this.activitySwitches[switchName]
+          .getCharacteristic(characteristic)
+          .updateValue(false);
+      }
+
+      return;
+    }
+
+    if (this.switchOutOfOffice) {
+      this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(false);
     }
 
     if (this.switchAvailable) {

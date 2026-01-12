@@ -20,4 +20,5 @@ export interface PresenceConfig {
   enableBusySwitch?: boolean;
   enableDndSwitch?: boolean;
   enableOfflineSwitch?: boolean;
+  enableOutOfOfficeSwitch?: boolean;
 }
