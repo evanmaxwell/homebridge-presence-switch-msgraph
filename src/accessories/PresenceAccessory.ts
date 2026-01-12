@@ -35,6 +35,7 @@ export class PresenceAccessory implements HomebridgeAccessory {
   private switchBusy: HAPNodeJS.Service = null;
   private switchAvailable: HAPNodeJS.Service = null;
   private switchDnD: HAPNodeJS.Service = null;
+  private switchOutOfOffice: HAPNodeJS.Service = null;
 
   private activitySwitches: { [name: string]: HAPNodeJS.Service } = {};
 
@@ -78,6 +79,12 @@ export class PresenceAccessory implements HomebridgeAccessory {
     statusColors: this.defaultColors,
     weekend: false,
     debug: false,
+    enableAvailableSwitch: false,
+    enableAwaySwitch: false,
+    enableBusySwitch: false,
+    enableDndSwitch: false,
+    enableOfflineSwitch: false,
+    enableOutOfOfficeSwitch: false,
   };
 
   /**
@@ -137,45 +144,65 @@ export class PresenceAccessory implements HomebridgeAccessory {
       .on("set", this.reset);
 
     // Register state switches
-    this.switchOff = new PresenceAccessory.service.Switch(
-      `Switch Offline - ${this.config.name}`,
-      "Offline"
-    );
-    this.switchOff
-      .getCharacteristic(PresenceAccessory.characteristic.On)
-      .updateValue(false);
+    if (this.config.enableOfflineSwitch) {
+      this.switchOff = new PresenceAccessory.service.Switch(
+        `Switch Offline - ${this.config.name}`,
+        "Offline"
+      );
+      this.switchOff
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
 
-    this.switchBusy = new PresenceAccessory.service.Switch(
-      `Switch Busy - ${this.config.name}`,
-      "Busy"
-    );
-    this.switchBusy
-      .getCharacteristic(PresenceAccessory.characteristic.On)
-      .updateValue(false);
+    if (this.config.enableBusySwitch) {
+      this.switchBusy = new PresenceAccessory.service.Switch(
+        `Switch Busy - ${this.config.name}`,
+        "Busy"
+      );
+      this.switchBusy
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
 
-    this.switchAway = new PresenceAccessory.service.Switch(
-      `Switch Away - ${this.config.name}`,
-      "Away"
-    );
-    this.switchAway
-      .getCharacteristic(PresenceAccessory.characteristic.On)
-      .updateValue(false);
+    if (this.config.enableAwaySwitch) {
+      this.switchAway = new PresenceAccessory.service.Switch(
+        `Switch Away - ${this.config.name}`,
+        "Away"
+      );
+      this.switchAway
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
 
-    this.switchAvailable = new PresenceAccessory.service.Switch(
-      `Switch Available - ${this.config.name}`,
-      "Available"
-    );
-    this.switchAvailable
-      .getCharacteristic(PresenceAccessory.characteristic.On)
-      .updateValue(false);
+    if (this.config.enableAvailableSwitch) {
+      this.switchAvailable = new PresenceAccessory.service.Switch(
+        `Switch Available - ${this.config.name}`,
+        "Available"
+      );
+      this.switchAvailable
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
 
-    this.switchDnD = new PresenceAccessory.service.Switch(
-      `Switch DnD - ${this.config.name}`,
-      "DnD"
-    );
-    this.switchDnD
-      .getCharacteristic(PresenceAccessory.characteristic.On)
-      .updateValue(false);
+    if (this.config.enableDndSwitch) {
+      this.switchDnD = new PresenceAccessory.service.Switch(
+        `Switch DnD - ${this.config.name}`,
+        "DnD"
+      );
+      this.switchDnD
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
+
+    if (this.config.enableOutOfOfficeSwitch) {
+      this.switchOutOfOffice = new PresenceAccessory.service.Switch(
+        `Switch Out of Office - ${this.config.name}`,
+        "OutOfOffice"
+      );
+      this.switchOutOfOffice
+        .getCharacteristic(PresenceAccessory.characteristic.On)
+        .updateValue(false);
+    }
 
     // Register custom switches if needed
     const otherStates = Object.keys(this.config.statusColors).filter(
@@ -219,17 +246,32 @@ export class PresenceAccessory implements HomebridgeAccessory {
         PresenceAccessory.version
       );
     const otherSwitches = Object.keys(this.activitySwitches);
-    return [
+    const services = [
       informationService,
       this.accessoryService,
       this.resetSwitch,
-      this.switchOff,
-      this.switchDnD,
-      this.switchBusy,
-      this.switchAway,
-      this.switchAvailable,
-      ...otherSwitches.map((name) => this.activitySwitches[name]),
     ];
+
+    if (this.switchOff) {
+      services.push(this.switchOff);
+    }
+    if (this.switchDnD) {
+      services.push(this.switchDnD);
+    }
+    if (this.switchBusy) {
+      services.push(this.switchBusy);
+    }
+    if (this.switchAway) {
+      services.push(this.switchAway);
+    }
+    if (this.switchAvailable) {
+      services.push(this.switchAvailable);
+    }
+    if (this.switchOutOfOffice) {
+      services.push(this.switchOutOfOffice);
+    }
+
+    return [...services, ...otherSwitches.map((name) => this.activitySwitches[name])];
   }
 
   /**
@@ -392,35 +434,90 @@ export class PresenceAccessory implements HomebridgeAccessory {
         }
       }
 
-      this.switchAvailable.getCharacteristic(characteristic).updateValue(false);
-      this.switchAway.getCharacteristic(characteristic).updateValue(false);
-      this.switchBusy.getCharacteristic(characteristic).updateValue(false);
-      this.switchOff.getCharacteristic(characteristic).updateValue(false);
-      this.switchDnD.getCharacteristic(characteristic).updateValue(false);
+      if (this.switchAvailable) {
+        this.switchAvailable.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchAway) {
+        this.switchAway.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchBusy) {
+        this.switchBusy.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchOff) {
+        this.switchOff.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchDnD) {
+        this.switchDnD.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchOutOfOffice) {
+        this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(false);
+      }
 
       return;
     }
 
-    this.switchAvailable
-      .getCharacteristic(characteristic)
-      .updateValue(availability === Availability.Available);
-    this.switchAway
-      .getCharacteristic(characteristic)
-      .updateValue(availability === Availability.Away);
-    this.switchBusy
-      .getCharacteristic(characteristic)
-      .updateValue(availability === Availability.Busy);
-    this.switchDnD
-      .getCharacteristic(characteristic)
-      .updateValue(availability === Availability.DoNotDisturb);
-    this.switchOff
-      .getCharacteristic(characteristic)
-      .updateValue(
-        availability !== Availability.DoNotDisturb &&
-          availability !== Availability.Busy &&
-          availability !== Availability.Away &&
-          availability !== Availability.Available
-      );
+    if (activity === Activity.OutOfOffice && this.switchOutOfOffice) {
+      this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(true);
+
+      if (this.switchAvailable) {
+        this.switchAvailable.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchAway) {
+        this.switchAway.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchBusy) {
+        this.switchBusy.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchOff) {
+        this.switchOff.getCharacteristic(characteristic).updateValue(false);
+      }
+      if (this.switchDnD) {
+        this.switchDnD.getCharacteristic(characteristic).updateValue(false);
+      }
+
+      for (const switchName of Object.keys(this.activitySwitches)) {
+        this.activitySwitches[switchName]
+          .getCharacteristic(characteristic)
+          .updateValue(false);
+      }
+
+      return;
+    }
+
+    if (this.switchOutOfOffice) {
+      this.switchOutOfOffice.getCharacteristic(characteristic).updateValue(false);
+    }
+
+    if (this.switchAvailable) {
+      this.switchAvailable
+        .getCharacteristic(characteristic)
+        .updateValue(availability === Availability.Available);
+    }
+    if (this.switchAway) {
+      this.switchAway
+        .getCharacteristic(characteristic)
+        .updateValue(availability === Availability.Away);
+    }
+    if (this.switchBusy) {
+      this.switchBusy
+        .getCharacteristic(characteristic)
+        .updateValue(availability === Availability.Busy);
+    }
+    if (this.switchDnD) {
+      this.switchDnD
+        .getCharacteristic(characteristic)
+        .updateValue(availability === Availability.DoNotDisturb);
+    }
+    if (this.switchOff) {
+      this.switchOff
+        .getCharacteristic(characteristic)
+        .updateValue(
+          availability !== Availability.DoNotDisturb &&
+            availability !== Availability.Busy &&
+            availability !== Availability.Away &&
+            availability !== Availability.Available
+        );
+    }
 
     for (const switchName of Object.keys(this.activitySwitches)) {
       this.activitySwitches[switchName]

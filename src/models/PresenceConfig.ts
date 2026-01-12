@@ -15,4 +15,10 @@ export interface PresenceConfig {
   statusColors: StatusColors;
   weekend: boolean;
   debug: boolean;
+  enableAvailableSwitch?: boolean;
+  enableAwaySwitch?: boolean;
+  enableBusySwitch?: boolean;
+  enableDndSwitch?: boolean;
+  enableOfflineSwitch?: boolean;
+  enableOutOfOfficeSwitch?: boolean;
 }
