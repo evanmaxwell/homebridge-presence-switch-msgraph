@@ -102,3 +102,28 @@ These switches can be used in `HomeKit` automation. If you use these, you do not
   "weekend": false,
 }
 ```
+
+## Presence Status Switches
+
+As of version `1.8.0`, the presence switches (`offline`, `busy`, `away`, `available`, `donotdisturb`, `outOfOffice`) are disabled by default. You can enable specific switches by adding the following properties to your configuration:
+
+- `enableAvailableSwitch`: Enable the "Available" switch (default: `false`)
+- `enableAwaySwitch`: Enable the "Away" switch (default: `false`)
+- `enableBusySwitch`: Enable the "Busy" switch (default: `false`)
+- `enableDndSwitch`: Enable the "Do Not Disturb" switch (default: `false`)
+- `enableOfflineSwitch`: Enable the "Offline" switch (default: `false`)
+- `enableOutOfOfficeSwitch`: Enable the "Out of Office" switch (default: `false`)
+
+Example configuration with switches enabled:
+
+```json
+{
+  "accessory": "presence-switch",
+  "name": "Presence Indicator",
+  "appId": "...",
+  "enableAvailableSwitch": true,
+  "enableBusySwitch": true,
+  "enableDndSwitch": true,
+  "enableOutOfOfficeSwitch": true
+}
+```
