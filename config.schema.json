@@ -223,6 +223,31 @@
         "title": "Debug",
         "type": "boolean",
         "default": false
+      },
+      "enableAvailableSwitch": {
+        "title": "Add 'Available' Switch",
+        "type": "boolean",
+        "default": false
+      },
+      "enableAwaySwitch": {
+        "title": "Add 'Away' Switch",
+        "type": "boolean",
+        "default": false
+      },
+      "enableBusySwitch": {
+        "title": "Add 'Busy' Switch",
+        "type": "boolean",
+        "default": false
+      },
+      "enableDndSwitch": {
+        "title": "Add 'Do Not Disturb' Switch",
+        "type": "boolean",
+        "default": false
+      },
+      "enableOfflineSwitch": {
+        "title": "Add 'Offline' Switch",
+        "type": "boolean",
+        "default": false
       }
     }
   },
@@ -251,6 +276,20 @@
                 "onApi",
                 "offApi",
                 "lightType"
+            ]
+        },
+        {
+            "type": "fieldset",
+            "title": "Presence Status Switches",
+            "description": "Enable specific switches to indicate your presence status in HomeKit.",
+            "expandable": true,
+            "items":
+            [
+                "enableAvailableSwitch",
+                "enableAwaySwitch",
+                "enableBusySwitch",
+                "enableDndSwitch",
+                "enableOfflineSwitch"
             ]
         },
         {
